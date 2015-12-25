@@ -6,7 +6,15 @@ module SidekiqUniqueJobs
     end
 
     def unique_enabled?
-      options[UNIQUE_KEY] || item[UNIQUE_KEY]
+      unique_on = options[k = UNIQUE_KEY] || item[k]
+      ignore_on = options[k = UNIQUE_IGNORE_SCHEDULED_JOBS_KEY] || item[k]
+
+      if ignore_on
+        schedule_on = options[k = SCHEDULE_KEY] || item[k]
+        unique_on and not schedule_on
+      else
+        unique_on
+      end
     end
 
     def unique_disabled?
